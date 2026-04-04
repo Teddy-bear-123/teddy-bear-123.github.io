@@ -1,0 +1,237 @@
+---
+import Layout from '../layouts/Layout.astro'
+
+export const prerender = true
+
+const projects = [
+    {
+        name: 'Surf & Waves',
+        stack: ['C', 'WebKit', 'Go'],
+        open: true,
+        github: 'https://github.com/teddy-bear-123',
+        desc: 'Fork of the suckless Surf browser with extended functionality. Improved Wayland support and better site compatibility. Waves is a companion TUI addon with bookmark management and project session support.'
+    },
+    {
+        name: 'AsciiDraw',
+        stack: ['C', 'Raylib'],
+        open: true,
+        github: 'https://github.com/teddy-bear-123',
+        desc: 'A drawing application that converts sketches to ASCII art in real-time. Features a fully-fledged drawing interface with custom shaders.'
+    },
+    {
+        name: 'Jiǎndān',
+        stack: ['C'],
+        open: true,
+        github: 'https://github.com/teddy-bear-123',
+        desc: 'A collection of single-header C libraries in the STB style. Includes dynamic arrays, hash maps, and arena allocators.'
+    },
+    {
+        name: 'Panemouse',
+        stack: ['Rust', 'X11'],
+        open: true,
+        github: 'https://github.com/teddy-bear-123',
+        desc: 'A virtual mouse emulator that enables cursor navigation via recursive binary screen splits — keyboard-driven mousing for tiling WM users.'
+    }
+]
+
+const publications = [
+    {
+        title: 'How does India Cook Biryani',
+        venue: 'ICVGIP 2025',
+        authors: 'C V Rishi, Shubham Goel, Farzana S, Aditya Arun, C V Jawahar',
+        desc: 'A novel framework for procedural video understanding across recipe variations and cooking styles. Work featured in The Hindu.',
+        link: 'https://arxiv.org/abs/2601.06198'
+    }
+]
+---
+
+<Layout title="C. V. Rishi">
+    <!-- Hero -->
+    <section class="hero">
+        <h1 class="hero-name">C. V. Rishi</h1>
+        <p class="hero-role">Systems Programmer · CV Researcher · B.Tech CSE @ Mahindra University</p>
+        <p class="hero-bio">
+            I build low-level tools in C and Rust and research procedural video understanding.
+            Research intern at CVIT, IIIT Hyderabad under Prof. C V Jawahar.
+            I like compilers, tiling WMs, and making things fast.
+        </p>
+        <div class="hero-links">
+            <a href="https://github.com/teddy-bear-123" class="panda-link">
+                github: <strong>@teddy-bear-123</strong>
+            </a>
+            <span class="sep">·</span>
+            <a href="mailto:cvrishi.devl@gmail.com" class="panda-link">
+                <strong>cvrishi.devl [at] gmail</strong>
+            </a>
+        </div>
+    </section>
+
+    <!-- Projects -->
+    <section class="section">
+        <h2 class="section-label">Projects</h2>
+        {projects.map((p) => (
+            <div class="card">
+                <div class="card-header">
+                    <span class="card-name">{p.name}</span>
+                    <span class="badge">{p.open ? 'open source' : 'closed source'}</span>
+                </div>
+                <div class="stack-row">
+                    {p.stack.map((s) => <span class="tag">{s}</span>)}
+                </div>
+                <p class="card-desc">{p.desc}</p>
+                <div class="card-links">
+                    {p.github && <a href={p.github} class="panda-link-static">GitHub →</a>}
+                    {p.site && <a href={p.site} class="panda-link-static">Visit →</a>}
+                </div>
+            </div>
+        ))}
+    </section>
+
+    <!-- Publications -->
+    <section class="section">
+        <h2 class="section-label">Publications</h2>
+        {publications.map((pub) => (
+            <div class="card">
+                <div class="card-header">
+                    <span class="card-name">{pub.title}</span>
+                    <span class="badge">{pub.venue}</span>
+                </div>
+                <p class="card-authors">{pub.authors}</p>
+                <p class="card-desc">{pub.desc}</p>
+                <div class="card-links">
+                    <a href={pub.link} class="panda-link-static">arXiv →</a>
+                </div>
+            </div>
+        ))}
+    </section>
+
+    <!-- Contact -->
+    <section class="section" id="contact">
+        <h2 class="section-label">Contact</h2>
+        <p class="contact-text">
+            Email: <a href="mailto:cvrishi.devl@gmail.com" class="panda-link">cvrishi.devl@gmail.com</a>
+            &nbsp;·&nbsp;
+            GitHub: <a href="https://github.com/teddy-bear-123" class="panda-link">teddy-bear-123</a>
+        </p>
+    </section>
+</Layout>
+
+<style>
+    .hero {
+        margin-top: 2rem;
+        margin-bottom: 2.5rem;
+    }
+    .hero-name {
+        font-size: 1.5rem;
+        font-weight: 700;
+        margin-bottom: 0.2rem;
+        color: rgb(var(--color-text-heading));
+    }
+    .hero-role {
+        font-size: 0.8rem;
+        color: rgb(var(--color-primary-main));
+        margin-bottom: 0.75rem;
+        opacity: 0.85;
+    }
+    .hero-bio {
+        font-size: 0.875rem;
+        line-height: 1.7;
+        max-width: 60ch;
+        margin-bottom: 0.75rem;
+        color: rgb(var(--color-text-body));
+    }
+    .hero-links {
+        font-size: 0.8rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+    }
+    .sep {
+        color: rgb(var(--color-text-body));
+        opacity: 0.4;
+    }
+
+    .section {
+        margin-bottom: 2.5rem;
+    }
+    .section-label {
+        font-size: 0.65rem;
+        font-weight: 700;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: rgb(var(--color-primary-main));
+        opacity: 0.65;
+        border-bottom: 1px solid rgb(var(--color-primary-main) / 0.2);
+        padding-bottom: 0.35rem;
+        margin-bottom: 1.25rem;
+    }
+
+    .card {
+        padding-bottom: 1.75rem;
+        margin-bottom: 1.75rem;
+        border-bottom: 1px solid rgb(var(--color-primary-main) / 0.12);
+    }
+    .card:last-child {
+        border-bottom: none;
+        margin-bottom: 0;
+        padding-bottom: 0;
+    }
+    .card-header {
+        display: flex;
+        align-items: baseline;
+        gap: 0.6rem;
+        flex-wrap: wrap;
+        margin-bottom: 0.4rem;
+    }
+    .card-name {
+        font-size: 1rem;
+        font-weight: 600;
+        color: rgb(var(--color-text-heading));
+    }
+    .badge {
+        font-size: 0.6rem;
+        padding: 0.1rem 0.45rem;
+        border: 1px solid rgb(var(--color-primary-main) / 0.4);
+        border-radius: 99px;
+        color: rgb(var(--color-primary-main));
+        opacity: 0.8;
+    }
+    .stack-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.3rem;
+        margin-bottom: 0.5rem;
+    }
+    .tag {
+        font-size: 0.65rem;
+        font-family: monospace;
+        background: rgb(var(--color-primary-main) / 0.08);
+        border-radius: 3px;
+        padding: 0.1rem 0.4rem;
+        color: rgb(var(--color-primary-main));
+    }
+    .card-desc {
+        font-size: 0.875rem;
+        line-height: 1.65;
+        max-width: 66ch;
+        margin-bottom: 0.5rem;
+        color: rgb(var(--color-text-body));
+    }
+    .card-authors {
+        font-size: 0.75rem;
+        color: rgb(var(--color-text-body));
+        opacity: 0.7;
+        margin-bottom: 0.4rem;
+    }
+    .card-links {
+        display: flex;
+        gap: 1rem;
+        font-size: 0.8rem;
+    }
+
+    .contact-text {
+        font-size: 0.875rem;
+        color: rgb(var(--color-text-body));
+    }
+</style>
