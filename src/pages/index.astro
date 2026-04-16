@@ -1,237 +1,476 @@
 ---
 import Layout from '../layouts/Layout.astro'
+import { getCollection } from 'astro:content'
 
 export const prerender = true
 
-const projects = [
-    {
-        name: 'Surf & Waves',
-        stack: ['C', 'WebKit', 'Go'],
-        open: true,
-        github: 'https://github.com/teddy-bear-123',
-        desc: 'Fork of the suckless Surf browser with extended functionality. Improved Wayland support and better site compatibility. Waves is a companion TUI addon with bookmark management and project session support.'
-    },
-    {
-        name: 'AsciiDraw',
-        stack: ['C', 'Raylib'],
-        open: true,
-        github: 'https://github.com/teddy-bear-123',
-        desc: 'A drawing application that converts sketches to ASCII art in real-time. Features a fully-fledged drawing interface with custom shaders.'
-    },
-    {
-        name: 'Jiǎndān',
-        stack: ['C'],
-        open: true,
-        github: 'https://github.com/teddy-bear-123',
-        desc: 'A collection of single-header C libraries in the STB style. Includes dynamic arrays, hash maps, and arena allocators.'
-    },
-    {
-        name: 'Panemouse',
-        stack: ['Rust', 'X11'],
-        open: true,
-        github: 'https://github.com/teddy-bear-123',
-        desc: 'A virtual mouse emulator that enables cursor navigation via recursive binary screen splits — keyboard-driven mousing for tiling WM users.'
-    }
-]
+const projectEntries = await getCollection('projects')
+const projects = await Promise.all(
+    projectEntries
+        .sort((a, b) => (a.data.order ?? 99) - (b.data.order ?? 99))
+        .map(async (p) => {
+            const { Content } = await p.render()
+            return { ...p.data, slug: p.slug, Content }
+        })
+)
 
 const publications = [
     {
         title: 'How does India Cook Biryani',
         venue: 'ICVGIP 2025',
         authors: 'C V Rishi, Shubham Goel, Farzana S, Aditya Arun, C V Jawahar',
-        desc: 'A novel framework for procedural video understanding across recipe variations and cooking styles. Work featured in The Hindu.',
+        desc: 'Temporal reasoning framework for procedural video understanding across recipe variations and cooking styles. Featured in The Hindu.',
         link: 'https://arxiv.org/abs/2601.06198'
     }
 ]
+
+// Collect all unique stack tags
+const allStacks = [...new Set(projects.flatMap(p => p.stack ?? []))]
 ---
 
 <Layout title="C. V. Rishi">
-    <!-- Hero -->
-    <section class="hero">
-        <h1 class="hero-name">C. V. Rishi</h1>
-        <p class="hero-role">Systems Programmer · CV Researcher · B.Tech CSE @ Mahindra University</p>
-        <p class="hero-bio">
-            I build low-level tools in C and Rust and research procedural video understanding.
-            Research intern at CVIT, IIIT Hyderabad under Prof. C V Jawahar.
-            I like compilers, tiling WMs, and making things fast.
-        </p>
-        <div class="hero-links">
-            <a href="https://github.com/teddy-bear-123" class="panda-link">
-                github: <strong>@teddy-bear-123</strong>
-            </a>
-            <span class="sep">·</span>
-            <a href="mailto:cvrishi.devl@gmail.com" class="panda-link">
-                <strong>cvrishi.devl [at] gmail</strong>
-            </a>
-        </div>
-    </section>
+    <div class="home">
 
-    <!-- Projects -->
-    <section class="section">
-        <h2 class="section-label">Projects</h2>
-        {projects.map((p) => (
-            <div class="card">
-                <div class="card-header">
-                    <span class="card-name">{p.name}</span>
-                    <span class="badge">{p.open ? 'open source' : 'closed source'}</span>
-                </div>
-                <div class="stack-row">
-                    {p.stack.map((s) => <span class="tag">{s}</span>)}
-                </div>
-                <p class="card-desc">{p.desc}</p>
-                <div class="card-links">
-                    {p.github && <a href={p.github} class="panda-link-static">GitHub →</a>}
-                    {p.site && <a href={p.site} class="panda-link-static">Visit →</a>}
+        <!-- Hero -->
+        <section class="hero">
+            <div class="hero-name-row">
+                <h1 class="hero-name">C. V. Rishi</h1>
+                <span class="hero-slash">/</span>
+                <span class="hero-handle">teddy-bear-123</span>
+            </div>
+            <p class="hero-role">Systems Programming · Computer Vision · B.Tech CSE @ Mahindra University</p>
+
+            <div class="hero-body">
+                <p>
+                    B.Tech CSE at Mahindra University (2023–present). Research intern at CVIT, IIIT Hyderabad
+                    under Prof. C V Jawahar — working on procedural video understanding.
+                    Work accepted at ICVGIP 2025 and featured in <em>The Hindu</em>.
+                </p>
+                <p>
+                    Day-to-day I write C and Rust. Interested in systems programming, computer vision,
+                    and making software that runs close to the metal. I use Linux exclusively,
+                    run a tiling WM, and prefer tools that do one thing well.
+                </p>
+                <p>
+                    Previous internship at iHUB Data, IIIT Hyderabad — curating two-wheeler driving
+                    datasets and evaluation metrics for dense urban traffic.
+                </p>
+            </div>
+
+            <div class="hero-links">
+                <a href="https://github.com/teddy-bear-123" class="hero-link">github</a>
+                <a href="mailto:cvrishi.devl@gmail.com" class="hero-link">email</a>
+                <a href="/posts/" class="hero-link">blog</a>
+                <a href="/about/" class="hero-link">about</a>
+            </div>
+        </section>
+
+        <hr class="divider" />
+
+        <!-- Projects -->
+        <section class="section" id="projects">
+            <div class="section-header">
+                <h2 class="section-title">Projects</h2>
+                <div class="filter-row" id="filter-row">
+                    <button class="filter-btn active" data-filter="all">all</button>
+                    {allStacks.map(s => (
+                        <button class="filter-btn" data-filter={s}>{s}</button>
+                    ))}
                 </div>
             </div>
-        ))}
-    </section>
 
-    <!-- Publications -->
-    <section class="section">
-        <h2 class="section-label">Publications</h2>
-        {publications.map((pub) => (
-            <div class="card">
-                <div class="card-header">
-                    <span class="card-name">{pub.title}</span>
-                    <span class="badge">{pub.venue}</span>
-                </div>
-                <p class="card-authors">{pub.authors}</p>
-                <p class="card-desc">{pub.desc}</p>
-                <div class="card-links">
-                    <a href={pub.link} class="panda-link-static">arXiv →</a>
-                </div>
+            <div class="project-grid" id="project-grid">
+                {projects.map((p) => (
+                    <article
+                        class="project-card"
+                        data-stack={(p.stack ?? []).join(',')}
+                    >
+                        <div class="card-top">
+                            <h3 class="card-title">{p.title}</h3>
+                            <div class="card-stack">
+                                {(p.stack ?? []).map(s => <code class="stack-pill">{s}</code>)}
+                            </div>
+                        </div>
+                        <div class="card-body prose-sm">
+                            <p.Content />
+                        </div>
+                        <div class="card-foot">
+                            {p.github && (
+                                <a href={p.github} class="card-link" target="_blank" rel="noopener">
+                                    source ↗
+                                </a>
+                            )}
+                            {p.site && (
+                                <a href={p.site} class="card-link" target="_blank" rel="noopener">
+                                    live ↗
+                                </a>
+                            )}
+                        </div>
+                    </article>
+                ))}
             </div>
-        ))}
-    </section>
+        </section>
 
-    <!-- Contact -->
-    <section class="section" id="contact">
-        <h2 class="section-label">Contact</h2>
-        <p class="contact-text">
-            Email: <a href="mailto:cvrishi.devl@gmail.com" class="panda-link">cvrishi.devl@gmail.com</a>
-            &nbsp;·&nbsp;
-            GitHub: <a href="https://github.com/teddy-bear-123" class="panda-link">teddy-bear-123</a>
-        </p>
-    </section>
+        <hr class="divider" />
+
+        <!-- Research -->
+        <section class="section" id="research">
+            <h2 class="section-title">Research</h2>
+            <div class="pub-list">
+                {publications.map(pub => (
+                    <div class="pub-item">
+                        <div class="pub-venue">{pub.venue}</div>
+                        <h3 class="pub-title">
+                            <a href={pub.link} target="_blank" rel="noopener" class="panda-link-static">
+                                {pub.title} ↗
+                            </a>
+                        </h3>
+                        <p class="pub-authors">{pub.authors}</p>
+                        <p class="pub-desc">{pub.desc}</p>
+                    </div>
+                ))}
+            </div>
+        </section>
+
+        <hr class="divider" />
+
+        <!-- Contact -->
+        <section class="section contact-section" id="contact">
+            <h2 class="section-title">Contact</h2>
+            <div class="contact-grid">
+                <a href="mailto:cvrishi.devl@gmail.com" class="contact-item">
+                    <span class="contact-label">email</span>
+                    <span class="contact-val">cvrishi.devl@gmail.com</span>
+                </a>
+                <a href="mailto:se23ucse044@mahindrauniversity.edu.in" class="contact-item">
+                    <span class="contact-label">college</span>
+                    <span class="contact-val">se23ucse044@mahindrauniversity.edu.in</span>
+                </a>
+                <a href="https://github.com/teddy-bear-123" target="_blank" rel="noopener" class="contact-item">
+                    <span class="contact-label">github</span>
+                    <span class="contact-val">teddy-bear-123</span>
+                </a>
+            </div>
+        </section>
+    </div>
 </Layout>
 
+<script>
+    function setupFilter() {
+        const btns = document.querySelectorAll<HTMLButtonElement>('.filter-btn')
+        const cards = document.querySelectorAll<HTMLElement>('.project-card')
+
+        btns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                btns.forEach(b => b.classList.remove('active'))
+                btn.classList.add('active')
+
+                const filter = btn.dataset.filter ?? 'all'
+                cards.forEach(card => {
+                    const stacks = (card.dataset.stack ?? '').split(',')
+                    if (filter === 'all' || stacks.includes(filter)) {
+                        card.style.display = ''
+                    } else {
+                        card.style.display = 'none'
+                    }
+                })
+            })
+        })
+    }
+    setupFilter()
+    document.addEventListener('astro:page-load', setupFilter)
+</script>
+
 <style>
+    .home {
+        padding-top: 1.5rem;
+    }
+
+    /* ── Hero ── */
     .hero {
-        margin-top: 2rem;
         margin-bottom: 2.5rem;
     }
+    .hero-name-row {
+        display: flex;
+        align-items: baseline;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+        margin-bottom: 0.25rem;
+    }
     .hero-name {
-        font-size: 1.5rem;
+        font-size: 1.6rem;
         font-weight: 700;
-        margin-bottom: 0.2rem;
+        letter-spacing: -0.02em;
+        margin: 0;
         color: rgb(var(--color-text-heading));
     }
-    .hero-role {
-        font-size: 0.8rem;
-        color: rgb(var(--color-primary-main));
-        margin-bottom: 0.75rem;
-        opacity: 0.85;
+    .hero-slash {
+        font-size: 1.2rem;
+        opacity: 0.3;
+        color: rgb(var(--color-text-heading));
     }
-    .hero-bio {
-        font-size: 0.875rem;
-        line-height: 1.7;
-        max-width: 60ch;
-        margin-bottom: 0.75rem;
+    .hero-handle {
+        font-size: 0.85rem;
+        font-family: monospace;
+        color: rgb(var(--color-primary-main));
+        opacity: 0.8;
+    }
+    .hero-role {
+        font-size: 0.75rem;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        color: rgb(var(--color-primary-main));
+        opacity: 0.7;
+        margin: 0 0 1.25rem;
+    }
+    .hero-body {
+        font-size: 0.9rem;
+        line-height: 1.8;
+        color: rgb(var(--color-text-body));
+        max-width: 72ch;
+        margin-bottom: 1.25rem;
+    }
+    .hero-body p {
+        margin: 0 0 0.75rem;
         color: rgb(var(--color-text-body));
     }
     .hero-links {
-        font-size: 0.8rem;
         display: flex;
-        align-items: center;
-        gap: 0.5rem;
+        gap: 1.25rem;
         flex-wrap: wrap;
     }
-    .sep {
-        color: rgb(var(--color-text-body));
-        opacity: 0.4;
+    .hero-link {
+        font-size: 0.8rem;
+        font-family: monospace;
+        color: rgb(var(--color-text-link));
+        text-decoration: none;
+        border-bottom: 1px solid rgb(var(--color-primary-main) / 0.3);
+        padding-bottom: 1px;
+        transition: border-color 0.15s, color 0.15s;
+    }
+    .hero-link:hover {
+        color: rgb(var(--color-text-link-hover));
+        border-bottom-color: rgb(var(--color-primary-main));
     }
 
-    .section {
-        margin-bottom: 2.5rem;
+    /* ── Divider ── */
+    .divider {
+        border: none;
+        border-top: 1px solid rgb(var(--color-primary-main) / 0.15);
+        margin: 2rem 0;
     }
-    .section-label {
-        font-size: 0.65rem;
+
+    /* ── Section ── */
+    .section {
+        margin-bottom: 0.5rem;
+    }
+    .section-header {
+        display: flex;
+        align-items: baseline;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 0.75rem;
+        margin-bottom: 1.5rem;
+    }
+    .section-title {
+        font-size: 0.7rem;
         font-weight: 700;
         letter-spacing: 0.12em;
         text-transform: uppercase;
         color: rgb(var(--color-primary-main));
         opacity: 0.65;
-        border-bottom: 1px solid rgb(var(--color-primary-main) / 0.2);
-        padding-bottom: 0.35rem;
-        margin-bottom: 1.25rem;
+        margin: 0;
     }
 
-    .card {
-        padding-bottom: 1.75rem;
-        margin-bottom: 1.75rem;
-        border-bottom: 1px solid rgb(var(--color-primary-main) / 0.12);
+    /* ── Filter ── */
+    .filter-row {
+        display: flex;
+        gap: 0.4rem;
+        flex-wrap: wrap;
     }
-    .card:last-child {
-        border-bottom: none;
-        margin-bottom: 0;
-        padding-bottom: 0;
+    .filter-btn {
+        font-family: monospace;
+        font-size: 0.7rem;
+        padding: 0.2rem 0.6rem;
+        border: 1px solid rgb(var(--color-primary-main) / 0.3);
+        border-radius: 99px;
+        background: transparent;
+        color: rgb(var(--color-text-body));
+        cursor: pointer;
+        transition: all 0.15s;
     }
-    .card-header {
+    .filter-btn:hover,
+    .filter-btn.active {
+        border-color: rgb(var(--color-primary-main));
+        color: rgb(var(--color-primary-main));
+        background: rgb(var(--color-primary-main) / 0.08);
+    }
+
+    /* ── Project Grid ── */
+    .project-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(min(100%, 28rem), 1fr));
+        gap: 1.25rem;
+    }
+    .project-card {
+        border: 1px solid rgb(var(--color-primary-main) / 0.18);
+        border-radius: 6px;
+        padding: 1.25rem 1.5rem;
+        display: flex;
+        flex-direction: column;
+        gap: 0.85rem;
+        transition: border-color 0.15s;
+    }
+    .project-card:hover {
+        border-color: rgb(var(--color-primary-main) / 0.5);
+    }
+    .card-top {
         display: flex;
         align-items: baseline;
-        gap: 0.6rem;
+        justify-content: space-between;
+        gap: 0.75rem;
         flex-wrap: wrap;
-        margin-bottom: 0.4rem;
     }
-    .card-name {
+    .card-title {
         font-size: 1rem;
         font-weight: 600;
+        margin: 0;
         color: rgb(var(--color-text-heading));
     }
-    .badge {
-        font-size: 0.6rem;
-        padding: 0.1rem 0.45rem;
-        border: 1px solid rgb(var(--color-primary-main) / 0.4);
-        border-radius: 99px;
-        color: rgb(var(--color-primary-main));
-        opacity: 0.8;
-    }
-    .stack-row {
+    .card-stack {
         display: flex;
-        flex-wrap: wrap;
         gap: 0.3rem;
-        margin-bottom: 0.5rem;
+        flex-wrap: wrap;
     }
-    .tag {
+    .stack-pill {
         font-size: 0.65rem;
         font-family: monospace;
-        background: rgb(var(--color-primary-main) / 0.08);
-        border-radius: 3px;
-        padding: 0.1rem 0.4rem;
+        background: rgb(var(--color-primary-main) / 0.1);
         color: rgb(var(--color-primary-main));
+        padding: 0.1rem 0.4rem;
+        border-radius: 3px;
     }
-    .card-desc {
-        font-size: 0.875rem;
-        line-height: 1.65;
-        max-width: 66ch;
-        margin-bottom: 0.5rem;
+    .card-body {
+        font-size: 0.85rem;
+        line-height: 1.7;
+        color: rgb(var(--color-text-body));
+        flex: 1;
+    }
+    /* tone down prose inside cards */
+    .card-body :global(p) {
+        margin: 0 0 0.6rem;
         color: rgb(var(--color-text-body));
     }
-    .card-authors {
-        font-size: 0.75rem;
-        color: rgb(var(--color-text-body));
-        opacity: 0.7;
-        margin-bottom: 0.4rem;
+    .card-body :global(ul) {
+        margin: 0.4rem 0 0.6rem 1.2rem;
+        padding: 0;
     }
-    .card-links {
+    .card-body :global(li) {
+        margin-bottom: 0.2rem;
+        color: rgb(var(--color-text-body));
+    }
+    .card-body :global(strong) {
+        color: rgb(var(--color-text-heading));
+        font-weight: 600;
+    }
+    .card-body :global(a) {
+        color: rgb(var(--color-text-link));
+        text-decoration: underline;
+        text-decoration-color: rgb(var(--color-primary-main) / 0.4);
+        text-underline-offset: 3px;
+    }
+    .card-body :global(code) {
+        font-size: 0.8rem;
+        background: rgb(var(--color-primary-main) / 0.08);
+        padding: 0.1em 0.35em;
+        border-radius: 3px;
+    }
+    .card-foot {
         display: flex;
         gap: 1rem;
-        font-size: 0.8rem;
+        margin-top: auto;
+    }
+    .card-link {
+        font-size: 0.78rem;
+        font-family: monospace;
+        color: rgb(var(--color-text-link));
+        text-decoration: none;
+        border-bottom: 1px solid transparent;
+        transition: border-color 0.15s;
+    }
+    .card-link:hover {
+        border-bottom-color: rgb(var(--color-primary-main));
     }
 
-    .contact-text {
-        font-size: 0.875rem;
+    /* ── Publications ── */
+    .pub-list {
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+    }
+    .pub-item {
+        border-left: 2px solid rgb(var(--color-primary-main) / 0.3);
+        padding-left: 1rem;
+    }
+    .pub-venue {
+        font-size: 0.65rem;
+        font-family: monospace;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: rgb(var(--color-primary-main));
+        opacity: 0.8;
+        margin-bottom: 0.2rem;
+    }
+    .pub-title {
+        font-size: 1rem;
+        font-weight: 600;
+        margin: 0 0 0.3rem;
+        color: rgb(var(--color-text-heading));
+    }
+    .pub-authors {
+        font-size: 0.78rem;
         color: rgb(var(--color-text-body));
+        opacity: 0.65;
+        margin: 0 0 0.35rem;
+    }
+    .pub-desc {
+        font-size: 0.85rem;
+        line-height: 1.65;
+        color: rgb(var(--color-text-body));
+        margin: 0;
+    }
+
+    /* ── Contact ── */
+    .contact-grid {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+    .contact-item {
+        display: flex;
+        gap: 1.5rem;
+        align-items: baseline;
+        text-decoration: none;
+        padding: 0.35rem 0;
+        border-bottom: 1px solid rgb(var(--color-primary-main) / 0.08);
+        transition: border-color 0.15s;
+    }
+    .contact-item:hover {
+        border-bottom-color: rgb(var(--color-primary-main) / 0.3);
+    }
+    .contact-label {
+        font-family: monospace;
+        font-size: 0.7rem;
+        color: rgb(var(--color-primary-main));
+        opacity: 0.7;
+        min-width: 4rem;
+        text-transform: lowercase;
+    }
+    .contact-val {
+        font-size: 0.85rem;
+        color: rgb(var(--color-text-body));
+    }
+    .contact-item:hover .contact-val {
+        color: rgb(var(--color-text-link));
     }
 </style>

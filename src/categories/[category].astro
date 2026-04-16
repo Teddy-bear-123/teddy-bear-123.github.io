@@ -6,14 +6,14 @@ export const prerender = true
 
 export async function getStaticPaths() {
     const posts = await getCollection('posts', ({ data }) => !data.draft)
-    const tags = [...new Set(posts.flatMap((p) => p.data.tags ?? []))]
-    return tags.map((tag) => ({
-        params: { tag: tag.replace(/\s/g, '-') },
-        props: { tag }
+    const categories = [...new Set(posts.flatMap((p) => p.data.categories ?? []))]
+    return categories.map((category) => ({
+        params: { category },
+        props: { category }
     }))
 }
 
-const { tag } = Astro.props
+const { category } = Astro.props
 ---
 
-<BlogListLayout tag={tag} category="" />
+<BlogListLayout tag="" category={category} />

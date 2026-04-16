@@ -1,0 +1,27 @@
+---
+import { getCollection } from 'astro:content'
+import BlogPostLayout from '@layouts/BlogPostLayout.astro'
+
+export const prerender = true
+
+export async function getStaticPaths() {
+    const posts = await getCollection('posts', ({ data }) => !data.draft)
+    return posts.map((post) => ({
+        params: { slug: post.slug },
+        props: { post }
+    }))
+}
+
+const { post } = Astro.props
+const { Content } = await post.render()
+
+const frontmatter = {
+    ...post.data,
+    pubDate: post.data.pubDate.toISOString(),
+    lastModified: post.data.lastModified ?? post.data.pubDate.toISOString(),
+}
+---
+
+<BlogPostLayout FrontMatter={frontmatter}>
+    <Content />
+</BlogPostLayout>

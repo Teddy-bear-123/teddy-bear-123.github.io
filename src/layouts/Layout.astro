@@ -4,12 +4,12 @@ import Header from './Header.astro'
 import Navbar from './Navbar.astro'
 import Footer from './Footer.astro'
 import { useLocale } from '@utils/locale'
-import {PandaConfig} from "../config.js";
+import { PandaConfig } from '../config.js'
+
 const { t, locale } = useLocale(Astro.url)
-const {description:defaultDescription,title:defaultTitle} = PandaConfig
+const { description: defaultDescription, title: siteTitle } = PandaConfig
 
 export const prerender = true
-
 
 export interface Props {
     title: string
@@ -17,10 +17,12 @@ export interface Props {
     description?: string
 }
 
-let { title, navbar,description,transition } = Astro.props
+let { title, navbar, description } = Astro.props
 if (navbar === undefined) navbar = true
 if (!description) description = defaultDescription
-const fullTitle = `${title} - ${defaultTitle}`
+
+// If title already IS the site title, don't duplicate
+const fullTitle = title === siteTitle ? title : `${title} — ${siteTitle}`
 ---
 
 <!doctype html>
@@ -34,8 +36,8 @@ const fullTitle = `${title} - ${defaultTitle}`
     </head>
     <body class="max-width dark:bg-stone-700">
         <Header />
-        { navbar && <Navbar />}
-        <main >
+        {navbar && <Navbar />}
+        <main>
             <slot />
         </main>
         <Footer />
