@@ -1,3 +1,11 @@
+---
+title: "About"
+resume: "/resume.pdf"
+emails: ["cvrishi.devl@gmail.com", "se23ucse044@mahindrauniversity.edu.in"]
+github: "teddy-bear-123"
+college: "Mahindra University"
+---
+
 ## C. V. Rishi
 
 B.Tech Computer Science and Engineering, Mahindra University, Hyderabad (2023–present).
@@ -21,11 +29,3 @@ Curated a dataset on two-wheeler driving in Indian traffic. Designed evaluation 
 **Languages:** C, Rust, Lua, Lisp, Python, Vimscript, C3, LaTeX, Typst, Bash, JS
 
 **Areas:** Machine Learning, Computer Vision, Systems Programming, Native Development, Linux, Graphic Design
-
----
-
-## Contact
-
-- Email: [cvrishi.devl@gmail.com](mailto:cvrishi.devl@gmail.com)
-- College: [se23ucse044@mahindrauniversity.edu.in](mailto:se23ucse044@mahindrauniversity.edu.in)
-- GitHub: [teddy-bear-123](https://github.com/teddy-bear-123)

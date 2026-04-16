@@ -35,6 +35,10 @@ const about = defineCollection({
     loader: glob({ pattern: '**/[^_]*.{md,mdx}', base: "./src/content/about" }),
     schema: z.object({
         title: z.string().optional(),
+        resume: z.string().optional(),
+        emails: z.array(z.string()).optional().default([]),
+        github: z.string().optional(),
+        college: z.string().optional(),
     })
 })
 

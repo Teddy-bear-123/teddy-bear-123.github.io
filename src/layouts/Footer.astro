@@ -1,32 +1,24 @@
 ---
 import {useLocale} from '@utils/locale'
 import {PandaConfig} from "../config.js";
-const {start, footer} = PandaConfig;
-const {t, path} = useLocale(Astro.url)
+const {footer} = PandaConfig;
+const {t} = useLocale(Astro.url)
 ---
 
-<footer class="mt-12 mb-6 text-sm">
-
-    <div class="mb-1">
+<footer class="mt-12 mb-6 text-sm opacity-60">
+    <div class="mb-2">
         {footer &&
             footer.map((item, index) => (
-                    <span>
-
-              <a href={item.url} class="panda-link">{item.title}</a>
-                        {index !== footer.length - 1 && <span class="mx-1">|</span>}
-                    </span>
-
+                <span>
+                    <a href={item.url} class="panda-link">{item.title}</a>
+                    {index !== footer.length - 1 && <span class="mx-1">|</span>}
+                </span>
             ))
         }
     </div>
-    <div class="mb-1">
-        <span>{start}-{new Date().getFullYear()}</span>
-    </div>
-    <div class="text-sm">
-        {t('footer.built-with')}
-        <a class="panda-link italic" href="https://astro.build/">astro</a>, {t('footer.inspired-by')}<a
-            class="panda-link italic ml-1"
-            href="https://bearblog.dev/">bearblog</a
-    >.
+    <div class="text-xs font-mono">
+        Built with <a class="panda-link" href="https://astro.build/">astro</a>. 
+        Inspired by <a class="panda-link" href="https://bearblog.dev/">bearblog</a> 
+        & <a class="panda-link" href="https://thavlik.dev/">thavlik.dev</a>.
     </div>
 </footer>

@@ -4,14 +4,167 @@ import { getEntry, render } from 'astro:content'
 
 const entry = await getEntry('about', 'about')
 const { Content } = entry ? await render(entry) : { Content: null }
+const { resume, emails, github, college } = entry?.data || {}
 
 export const prerender = true
 ---
 
 <Layout title="About">
     <div class="mt-9">
+        <div class="about-bar mb-8">
+            {resume && (
+                <div class="bar-item">
+                    <a href={resume} class="bar-link" target="_blank">Resume ↗</a>
+                </div>
+            )}
+            
+            {emails && emails.length > 0 && (
+                <div class="bar-item dropdown">
+                    <button class="dropdown-trigger" id="email-trigger">
+                        Email <span class="arrow">▾</span>
+                    </button>
+                    <div class="dropdown-content" id="email-dropdown">
+                        {emails.map(email => (
+                            <a href={`mailto:${email}`} class="dropdown-link">{email}</a>
+                        ))}
+                    </div>
+                </div>
+            )}
+
+            {github && (
+                <div class="bar-item">
+                    <a href={`https://github.com/${github}`} class="bar-link" target="_blank">GitHub</a>
+                </div>
+            )}
+
+            {college && (
+                <div class="bar-item college-tag">
+                    {college}
+                </div>
+            )}
+        </div>
+
         <div class="prose dark:prose-invert prose-stone max-w-none">
             {Content ? <Content /> : <p>About page content coming soon.</p>}
         </div>
     </div>
 </Layout>
+
+<script>
+    function setupDropdown() {
+        const trigger = document.getElementById('email-trigger');
+        const dropdown = document.getElementById('email-dropdown');
+        
+        if (!trigger || !dropdown) return;
+
+        trigger.addEventListener('click', (e) => {
+            e.stopPropagation();
+            dropdown.classList.toggle('show');
+            trigger.classList.toggle('active');
+        });
+
+        document.addEventListener('click', () => {
+            dropdown.classList.remove('show');
+            trigger.classList.remove('active');
+        });
+    }
+
+    setupDropdown();
+    document.addEventListener('astro:page-load', setupDropdown);
+</script>
+
+<style>
+    .about-bar {
+        display: flex;
+        align-items: center;
+        gap: 1.5rem;
+        padding: 1rem 0;
+        border-bottom: 1px solid rgb(var(--color-primary-main) / 0.1);
+        font-family: monospace;
+        font-size: 0.9rem;
+        flex-wrap: wrap;
+    }
+
+    .bar-item {
+        position: relative;
+    }
+
+    .bar-link {
+        color: rgb(var(--color-primary-main));
+        text-decoration: none;
+        padding: 0.25rem 0.5rem;
+        border: 1px solid transparent;
+        transition: all 0.2s;
+    }
+
+    .bar-link:hover {
+        border-color: rgb(var(--color-primary-main));
+        background: rgb(var(--color-primary-main) / 0.05);
+    }
+
+    .college-tag {
+        opacity: 0.6;
+        color: rgb(var(--color-text-body));
+        font-style: italic;
+    }
+
+    /* Dropdown Styles */
+    .dropdown-trigger {
+        background: transparent;
+        border: 1px solid rgb(var(--color-primary-main) / 0.3);
+        color: rgb(var(--color-primary-main));
+        padding: 0.25rem 0.75rem;
+        cursor: pointer;
+        font-family: inherit;
+        font-size: inherit;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        transition: all 0.2s;
+    }
+
+    .dropdown-trigger:hover, .dropdown-trigger.active {
+        border-color: rgb(var(--color-primary-main));
+        background: rgb(var(--color-primary-main) / 0.05);
+    }
+
+    .dropdown-trigger .arrow {
+        font-size: 0.7rem;
+        transition: transform 0.2s;
+    }
+
+    .dropdown-trigger.active .arrow {
+        transform: rotate(180deg);
+    }
+
+    .dropdown-content {
+        display: none;
+        position: absolute;
+        top: 100%;
+        left: 0;
+        background: rgb(var(--color-code-bg));
+        border: 1px solid rgb(var(--color-primary-main) / 0.2);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        z-index: 10;
+        min-width: 200px;
+        margin-top: 0.5rem;
+    }
+
+    .dropdown-content.show {
+        display: block;
+    }
+
+    .dropdown-link {
+        display: block;
+        padding: 0.75rem 1rem;
+        color: rgb(var(--color-text-body));
+        text-decoration: none;
+        transition: background 0.2s;
+        font-size: 0.85rem;
+    }
+
+    .dropdown-link:hover {
+        background: rgb(var(--color-primary-main) / 0.1);
+        color: rgb(var(--color-primary-main));
+    }
+</style>

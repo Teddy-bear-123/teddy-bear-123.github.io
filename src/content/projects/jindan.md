@@ -4,7 +4,7 @@ tags: ["library", "c"]
 features: ["Dynamic array", "Hash map", "Arena allocator", "String builder"]
 languages: ["C"]
 github: "https://github.com/teddy-bear-123"
-order: 3
+order: 5
 ---
 
 Collection of single-header C libraries in [STB style](https://github.com/nothings/stb). Drop one `.h` file, define the impl macro, done.

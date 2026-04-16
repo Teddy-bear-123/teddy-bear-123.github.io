@@ -5,7 +5,7 @@ features: ["Live preview", "Multiple brush modes", "ANSI export", "Themeable cha
 languages: ["C"]
 github: "https://github.com/teddy-bear-123"
 thumbnail: ""
-order: 2
+order: 4
 ---
 
 Drawing application that converts sketches to ASCII art in real-time. Built on Raylib with custom GLSL shaders for the rasterization pipeline.
