@@ -1,27 +1,32 @@
 ---
 import Layout from '../layouts/Layout.astro'
-import { getCollection, render } from 'astro:content'
+import { getCollection, getEntry, render } from 'astro:content'
 import { formatDateMD } from '@utils/format'
 
 export const prerender = true
 
+const introEntry = await getEntry('about', 'intro')
+const IntroContent = introEntry ? (await render(introEntry)).Content : null
+
 const projectEntries = await getCollection('projects')
-const projects = await Promise.all(
+const allItems = await Promise.all(
     projectEntries
         .sort((a, b) => (a.data.order ?? 99) - (b.data.order ?? 99))
         .map(async (p) => {
             const rendered = await render(p)
-            const Content = rendered.Content
-            return { ...p.data, id: p.id, Content }
+            return { ...p.data, id: p.id, Content: rendered.Content }
         })
 )
+
+const researchItems = allItems.filter(p => p.tags?.includes('research'))
+const regularProjects = allItems.filter(p => !p.tags?.includes('research'))
 
 const allPosts = await getCollection('posts', ({ data }) => !data.draft)
 const latestPosts = allPosts
     .sort((a, b) => b.data.pubDate.getTime() - a.data.pubDate.getTime())
     .slice(0, 1)
 
-const allLangs = [...new Set(projects.flatMap(p => p.languages ?? []))]
+const allLangs = [...new Set(regularProjects.flatMap(p => p.languages ?? []))]
 ---
 
 <Layout title="C. V. Rishi">
@@ -31,11 +36,9 @@ const allLangs = [...new Set(projects.flatMap(p => p.languages ?? []))]
         <section class="hero-new">
             <div class="hero-content-new">
                 <h1 class="hero-title-new">Systems Programmer | CV Research</h1>
-                <p class="hero-desc-new">
-                    I'm a B.Tech student at Mahindra University specializing in computer vision and systems software. 
-                    I work on procedural video understanding at IIIT Hyderabad, combining low-level engineering 
-                    with deep learning to build efficient vision tools.
-                </p>
+                <div class="hero-desc-new prose dark:prose-invert">
+                    {IntroContent ? <IntroContent /> : <p>Welcome to my personal site.</p>}
+                </div>
                 <p class="hero-cta-new">
                     Interested in computer vision or systems architecture? Let's talk.
                 </p>
@@ -61,10 +64,14 @@ const allLangs = [...new Set(projects.flatMap(p => p.languages ?? []))]
             </section>
         ))}
 
-        <section class="section" id="projects">
+        <section class="section" id="projects-section">
             <div class="section-header">
-                <h2>Projects</h2>
-                <div class="filter-chips">
+                <div class="main-toggles">
+                    <button class="toggle-btn active" data-main="projects">Projects</button>
+                    <button class="toggle-btn" data-main="research">Research</button>
+                </div>
+                
+                <div class="filter-chips" id="lang-filters">
                     <button class="chip active" data-filter="all">all</button>
                     {allLangs.map(s => (
                         <button class="chip" data-filter={s}>{s}</button>
@@ -72,45 +79,66 @@ const allLangs = [...new Set(projects.flatMap(p => p.languages ?? []))]
                 </div>
             </div>
 
-            <div class="project-grid-wide" id="project-grid">
-                {projects.map((p) => (
-                    <article class="project-card-wide" data-langs={(p.languages ?? []).join(',')}>
-                        <div class="card-header">
-                            <h3>{p.name}</h3>
-                            <span class="status-pill">open source</span>
-                        </div>
-                        
-                        {p.thumbnail && (
-                            <div class="card-img">
-                                <img src={p.thumbnail} alt={p.name} />
+            <div class="content-container">
+                <!-- Projects Grid -->
+                <div class="project-grid-wide active" id="project-grid">
+                    {regularProjects.map((p) => (
+                        <article class="project-card-wide" data-langs={(p.languages ?? []).join(',')}>
+                            <div class="card-header">
+                                <h3>{p.name}</h3>
+                                <span class="status-pill">open source</span>
                             </div>
-                        )}
-                        
-                        <div class="card-content">
-                            <div class="card-desc">
-                                <p.Content />
-                            </div>
-                            
-                            <div class="card-footer">
-                                <div class="card-tags">
-                                    {(p.languages ?? []).map(s => <span class="tech-tag">{s}</span>)}
-                                    {(p.tags ?? []).map(t => <span class="tag-pill">{t}</span>)}
-                                    {p.tags?.includes('research') && <span class="tag-pill research-badge">Research</span>}
+                            {p.thumbnail && (
+                                <div class="card-img">
+                                    <img src={p.thumbnail} alt={p.name} />
                                 </div>
-                                {p.github && (
-                                    <a href={p.github} class="card-link" target="_blank">GitHub</a>
-                                )}
+                            )}
+                            <div class="card-content">
+                                <div class="card-desc">
+                                    <p.Content />
+                                </div>
+                                <div class="card-footer">
+                                    <div class="card-tags">
+                                        {(p.languages ?? []).map(s => <span class="tech-tag">{s}</span>)}
+                                        {(p.tags ?? []).map(t => <span class="tag-pill">{t}</span>)}
+                                    </div>
+                                    {p.github && <a href={p.github} class="card-link" target="_blank">GitHub</a>}
+                                </div>
                             </div>
-                        </div>
-                    </article>
-                ))}
+                        </article>
+                    ))}
+                </div>
+
+                <!-- Research List -->
+                <div class="research-list-container" id="research-list" style="display: none;">
+                    <div class="research-list">
+                        {researchItems.map(pub => (
+                            <div class="research-item-new">
+                                <div class="pub-header">
+                                    <span class="pub-venue">{pub.venue}</span>
+                                    <span class="tag-pill research-badge">Research</span>
+                                </div>
+                                <h3>
+                                    {pub.link ? (
+                                        <a href={pub.link} target="_blank" class="research-link">{pub.name} ↗</a>
+                                    ) : (
+                                        pub.name
+                                    )}
+                                </h3>
+                                <p class="pub-authors">{pub.authors}</p>
+                                <div class="pub-desc">
+                                    <pub.Content />
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </div>
             </div>
         </section>
     </div>
 </Layout>
 
 <script>
-    // Abstract grid/particle animation
     function initBg() {
         const canvas = document.getElementById('bg-canvas') as HTMLCanvasElement
         if (!canvas) return
@@ -167,9 +195,31 @@ const allLangs = [...new Set(projects.flatMap(p => p.languages ?? []))]
         draw()
     }
 
-    function setupFilters() {
+    function setupInteractions() {
+        const toggleBtns = document.querySelectorAll('.toggle-btn')
         const chips = document.querySelectorAll('.chip')
+        const projectGrid = document.getElementById('project-grid')
+        const researchList = document.getElementById('research-list')
+        const langFilters = document.getElementById('lang-filters')
         const cards = document.querySelectorAll('.project-card-wide')
+
+        toggleBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                toggleBtns.forEach(b => b.classList.remove('active'))
+                btn.classList.add('active')
+                
+                const target = (btn as HTMLElement).dataset.main
+                if (target === 'projects') {
+                    projectGrid!.style.display = 'grid'
+                    researchList!.style.display = 'none'
+                    langFilters!.style.display = 'flex'
+                } else {
+                    projectGrid!.style.display = 'none'
+                    researchList!.style.display = 'block'
+                    langFilters!.style.display = 'none'
+                }
+            })
+        })
 
         chips.forEach(chip => {
             chip.addEventListener('click', () => {
@@ -189,10 +239,10 @@ const allLangs = [...new Set(projects.flatMap(p => p.languages ?? []))]
     }
 
     initBg()
-    setupFilters()
+    setupInteractions()
     document.addEventListener('astro:page-load', () => {
         initBg()
-        setupFilters()
+        setupInteractions()
     })
 </script>
 
@@ -208,7 +258,7 @@ const allLangs = [...new Set(projects.flatMap(p => p.languages ?? []))]
     }
 
     .hero-new {
-        padding: 6rem 0 4rem;
+        padding: 4rem 0 3rem;
         text-align: center;
     }
 
@@ -226,10 +276,11 @@ const allLangs = [...new Set(projects.flatMap(p => p.languages ?? []))]
     }
 
     .hero-desc-new {
-        font-size: 1.1rem;
+        font-size: 1.05rem;
         line-height: 1.6;
         margin-bottom: 1.5rem;
         color: rgb(var(--color-text-body));
+        text-align: left;
     }
 
     .hero-cta-new {
@@ -313,10 +364,57 @@ const allLangs = [...new Set(projects.flatMap(p => p.languages ?? []))]
         text-decoration: none;
     }
 
-    .section h2 {
-        font-size: 1.5rem;
-        margin-bottom: 2rem;
+    .section-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2.5rem;
+        flex-wrap: wrap;
+        gap: 1rem;
+    }
+
+    .main-toggles {
+        display: flex;
+        gap: 1rem;
+    }
+
+    .toggle-btn {
+        background: transparent;
+        border: none;
         font-family: monospace;
+        font-size: 1.2rem;
+        font-weight: 700;
+        color: rgb(var(--color-text-body));
+        opacity: 0.4;
+        cursor: pointer;
+        transition: all 0.2s;
+        padding: 0;
+    }
+
+    .toggle-btn.active {
+        opacity: 1;
+        color: rgb(var(--color-primary-main));
+    }
+
+    .filter-chips {
+        display: flex;
+        gap: 0.5rem;
+    }
+
+    .chip {
+        font-family: monospace;
+        font-size: 0.8rem;
+        background: transparent;
+        border: 1px solid rgb(var(--color-primary-main) / 0.3);
+        color: rgb(var(--color-text-body));
+        padding: 0.2rem 0.6rem;
+        cursor: pointer;
+    }
+
+    .chip.active {
+        background: rgb(var(--color-primary-main));
+        color: white;
+        border-color: rgb(var(--color-primary-main));
     }
 
     .project-grid-wide {
@@ -414,10 +512,66 @@ const allLangs = [...new Set(projects.flatMap(p => p.languages ?? []))]
         color: rgb(var(--color-text-body));
     }
 
+    .research-list {
+        display: flex;
+        flex-direction: column;
+        gap: 2.5rem;
+    }
+
+    .research-item-new {
+        border-left: 3px solid rgb(var(--color-primary-main));
+        padding-left: 1.5rem;
+    }
+
+    .pub-header {
+        margin-bottom: 0.5rem;
+        display: flex;
+        gap: 1rem;
+        align-items: center;
+    }
+
+    .pub-venue {
+        font-size: 0.75rem;
+        font-family: monospace;
+        color: rgb(var(--color-primary-main));
+        font-weight: 700;
+        text-transform: uppercase;
+    }
+
     .research-badge {
         background: #ff4757;
         color: white;
         border-color: #ff4757;
+        font-weight: 800;
+        font-size: 0.65rem;
+    }
+
+    .research-item-new h3 {
+        font-size: 1.3rem;
+        margin: 0.5rem 0;
+    }
+
+    .research-link {
+        color: rgb(var(--color-text-heading));
+        text-decoration: none;
+        border-bottom: 1px solid rgb(var(--color-primary-main) / 0.3);
+    }
+
+    .research-link:hover {
+        border-bottom-color: rgb(var(--color-primary-main));
+    }
+
+    .pub-authors {
+        font-size: 0.9rem;
+        color: rgb(var(--color-text-body));
+        opacity: 0.7;
+        margin-bottom: 1rem;
+    }
+
+    .pub-desc {
+        font-size: 0.95rem;
+        line-height: 1.6;
+        color: rgb(var(--color-text-body));
     }
 
     .card-link {
@@ -433,33 +587,4 @@ const allLangs = [...new Set(projects.flatMap(p => p.languages ?? []))]
         background: rgb(var(--color-primary-main));
         color: white;
     }
-
-    .section-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 2rem;
-    }
-
-    .filter-chips {
-        display: flex;
-        gap: 0.5rem;
-    }
-
-    .chip {
-        font-family: monospace;
-        font-size: 0.8rem;
-        background: transparent;
-        border: 1px solid rgb(var(--color-primary-main) / 0.3);
-        color: rgb(var(--color-text-body));
-        padding: 0.2rem 0.6rem;
-        cursor: pointer;
-    }
-
-    .chip.active {
-        background: rgb(var(--color-primary-main));
-        color: white;
-        border-color: rgb(var(--color-primary-main));
-    }
-
 </style>

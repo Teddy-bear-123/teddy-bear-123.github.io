@@ -24,7 +24,18 @@ const projects = defineCollection({
         github: z.string().optional(),
         order: z.number().optional().default(99),
         thumbnail: z.string().optional(), // TODO 2 — implement later
+        // Research fields
+        venue: z.string().optional(),
+        authors: z.string().optional(),
+        link: z.string().optional(),
     })
 })
 
-export const collections = { posts, projects }
+const about = defineCollection({
+    loader: glob({ pattern: '**/[^_]*.{md,mdx}', base: "./src/content/about" }),
+    schema: z.object({
+        title: z.string().optional(),
+    })
+})
+
+export const collections = { posts, projects, about }

@@ -16,7 +16,7 @@
         "@astrojs/sitemap": "^3.7.2",
         "@astrojs/ts-plugin": "latest",
         "@unocss/astro": "^66.6.7",
-        "astro": "latest",
+        "astro": "^5.4.2",
         "astro-expressive-code": "^0.41.7",
         "astro-i18n-aut": "latest",
         "astro-purgecss": "latest",

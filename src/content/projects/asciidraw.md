@@ -1,10 +1,10 @@
 ---
 name: "AsciiDraw"
-tags: ["graphics", "tool", "research"]
+tags: ["graphics", "tool",]
 features: ["Live preview", "Multiple brush modes", "ANSI export", "Themeable charsets"]
 languages: ["C"]
 github: "https://github.com/teddy-bear-123"
-thumbnail: "https://raw.githubusercontent.com/teddy-bear-123/teddy-bear-123.github.io/main/public/favicon.ico"
+thumbnail: ""
 order: 2
 ---
 

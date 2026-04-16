@@ -5,8 +5,9 @@ export const PandaConfig = {
     site: 'https://teddy-bear-123.github.io',
     defaultLocale: 'en',
     navbar: [
-        { title: 'posts', url: '/posts/' },
-        { title: 'about', url: '/about/' }
+        { title: '/', url: '/' },
+        { title: '/posts', url: '/posts/' },
+        { title: '/about', url: '/about/' }
     ],
     footer: [
         { title: 'github', url: 'https://github.com/teddy-bear-123' },
