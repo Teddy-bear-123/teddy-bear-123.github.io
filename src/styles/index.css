@@ -1,5 +1,7 @@
 body {
-    font-family: Verdana, sans-serif;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
     overflow-y: scroll;
 }
 
@@ -65,7 +67,7 @@ a.animated.active:after {
 }
 
 .max-width {
-    @apply max-w-[65ch] mx-auto;
+    @apply max-w-[1000px] mx-auto px-6;
 }
 
 .panda-text {

@@ -1,17 +1,13 @@
 ---
-title: "AsciiDraw"
-stack: ["C", "Raylib"]
-open: true
+name: "AsciiDraw"
+tags: ["graphics", "tool", "research"]
+features: ["Live preview", "Multiple brush modes", "ANSI export", "Themeable charsets"]
+languages: ["C"]
 github: "https://github.com/teddy-bear-123"
+thumbnail: "https://raw.githubusercontent.com/teddy-bear-123/teddy-bear-123.github.io/main/public/favicon.ico"
 order: 2
 ---
 
-A drawing application that converts sketches to ASCII art in real-time. Built on Raylib for a lightweight native window with custom GLSL shaders for the rasterization pipeline.
+Drawing application that converts sketches to ASCII art in real-time. Built on Raylib with custom GLSL shaders for the rasterization pipeline.
 
-Features:
-- Live preview as you draw
-- Multiple brush modes (block, line, fill)
-- Export to plain text or ANSI escape sequences
-- Themeable character sets (braille, box-drawing, custom)
-
-Motivated by wanting to embed diagrams in terminal documentation without leaving the terminal. The shader approach lets it run fast even on large canvases.
+Brush modes: block, line, fill. Export to plain text or ANSI escape sequences. Supports braille, box-drawing, and custom character sets. Fast even on large canvases.

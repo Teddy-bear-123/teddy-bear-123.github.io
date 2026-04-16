@@ -1,17 +1,17 @@
 ---
-title: "Jiǎndān"
-stack: ["C"]
-open: true
+name: "Jiǎndān"
+tags: ["library", "c"]
+features: ["Dynamic array", "Hash map", "Arena allocator", "String builder"]
+languages: ["C"]
 github: "https://github.com/teddy-bear-123"
 order: 3
 ---
 
-A collection of single-header C libraries in the [STB style](https://github.com/nothings/stb). Drop one `.h` file into your project, define an implementation macro, done.
+Collection of single-header C libraries in [STB style](https://github.com/nothings/stb). Drop one `.h` file, define the impl macro, done.
 
-Included so far:
-- **`jd_array.h`** — dynamic array with typed macros, no `void*` casting
-- **`jd_map.h`** — open-addressing hash map, configurable hash fn
-- **`jd_arena.h`** — arena allocator with optional stack fallback
-- **`jd_str.h`** — string builder and interning
+- **`jd_array.h`** — typed dynamic array, no `void*` casting  
+- **`jd_map.h`** — open-addressing hash map, configurable hash fn  
+- **`jd_arena.h`** — arena allocator with optional stack fallback  
+- **`jd_str.h`** — string builder and interning  
 
-The design constraint: zero dependencies, C99 compatible, valgrind-clean. Used personally across several other projects as a standard library baseline.
+Zero deps, C99, valgrind-clean.

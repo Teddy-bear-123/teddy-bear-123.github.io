@@ -1,19 +1,19 @@
 ---
 import ThemeIcon from '@components/ThemeIcon.astro'
-import { useLocale } from '@utils/locale'
-import { PandaConfig } from '../config.js'
-const { path } = useLocale(Astro.url)
-const { title } = PandaConfig
 
 export const prerender = true
 ---
 
-<div class="my-6 flex items-center">
-    <a href={path('/')} class="hover:cursor-pointer opacity-100 hover:opacity-75 transition-opacity panda-link-static">
-        <i class="hidden">site header</i>
-        <span class="font-mono text-sm tracking-tight" style="color: rgb(var(--color-primary-main))">{title}</span>
-    </a>
+<div class="header-container">
     <div class="ml-auto">
         <ThemeIcon />
     </div>
 </div>
+
+<style>
+    .header-container {
+        display: flex;
+        align-items: center;
+        padding: 1rem 0;
+    }
+</style>

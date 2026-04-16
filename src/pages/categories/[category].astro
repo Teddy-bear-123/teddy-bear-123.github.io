@@ -1,15 +1,13 @@
 ---
 import BlogListLayout from '@layouts/BlogListLayout.astro'
+import { getCollection } from 'astro:content'
 export const prerender = true
 
 export async function getStaticPaths() {
-    const posts = await Astro.glob('../../content/posts/**/*.{md,mdx}')
+    const posts = await getCollection('posts', ({ data }) => !data.draft)
     const categories = [
         ...new Set(
-            posts
-                .filter((i) => i.frontmatter.categories)
-                .map((i) => i.frontmatter.categories)
-                .flat()
+            posts.flatMap((p) => p.data.categories ?? [])
         )
     ]
     return categories.map((category) => {

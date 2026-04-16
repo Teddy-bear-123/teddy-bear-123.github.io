@@ -45,7 +45,7 @@ const result = keys(postsByYear)
                             <span style={{ flex: '0 0 5rem' }}>
                                 <time class="mr-2">{formatDateMD(post.data.pubDate.toISOString())}</time>
                             </span>
-                            <a rel="prefetch-intent" href={path(`/posts/${post.slug}/`)} class="panda-link-static">
+                            <a rel="prefetch-intent" href={path(`/posts/${post.id}/`)} class="panda-link-static">
                                 {post.data.title}
                             </a>
                         </li>

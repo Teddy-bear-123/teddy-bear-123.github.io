@@ -1,18 +1,26 @@
 ---
 import BlogListLayout from '@layouts/BlogListLayout.astro'
 import { getCollection } from 'astro:content'
-
 export const prerender = true
 
 export async function getStaticPaths() {
     const posts = await getCollection('posts', ({ data }) => !data.draft)
-    const categories = [...new Set(posts.flatMap((p) => p.data.categories ?? []))]
-    return categories.map((category) => ({
-        params: { category },
-        props: { category }
-    }))
+    const categories = [
+        ...new Set(
+            posts.flatMap((p) => p.data.categories ?? [])
+        )
+    ]
+    return categories.map((category) => {
+        return {
+            params: {
+                category
+            },
+            props: {
+                category
+            }
+        }
+    })
 }
-
 const { category } = Astro.props
 ---
 
