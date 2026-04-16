@@ -1,33 +1,17 @@
 ---
 import Layout from '@layouts/Layout.astro'
-import { useLocale } from '@utils/locale'
-import { getCollection } from 'astro:content'
+import { getEntry, render } from 'astro:content'
 
-const { t } = useLocale(Astro.url)
+const entry = await getEntry('about', 'about')
+const { Content } = entry ? await render(entry) : { Content: null }
 
 export const prerender = true
 ---
 
 <Layout title="About">
     <div class="mt-9">
-        <h1>About</h1>
-        <div class="prose dark:prose-invert prose-stone max-w-prose">
-            <p>B.Tech CSE at Mahindra University (2023–present). Research intern at CVIT, IIIT Hyderabad under Prof. C V Jawahar — working on procedural video understanding. Work accepted at ICVGIP 2025 and featured in <em>The Hindu</em>.</p>
-            
-            <p>Day-to-day I write C and Rust. Interested in systems programming, computer vision, and making software that runs close to the metal. I use Linux exclusively, run a tiling WM, and prefer tools that do one thing well.</p>
-            
-            <p>Previous internship at iHUB Data, IIIT Hyderabad — curating two-wheeler driving datasets and evaluation metrics for dense urban traffic.</p>
-            
-            <h2>Skills</h2>
-            <p><strong>Languages:</strong> C, Rust, Lua, Lisp, Python, Vimscript, C3, LaTeX, Typst, Bash, JS</p>
-            <p><strong>Areas:</strong> Machine Learning, Computer Vision, Systems Programming, Native Development, Linux, Graphic Design</p>
-            
-            <h2>Contact</h2>
-            <ul>
-                <li>Email: <a href="mailto:cvrishi.devl@gmail.com">cvrishi.devl@gmail.com</a></li>
-                <li>GitHub: <a href="https://github.com/teddy-bear-123">teddy-bear-123</a></li>
-                <li>College: <a href="mailto:se23ucse044@mahindrauniversity.edu.in">se23ucse044@mahindrauniversity.edu.in</a></li>
-            </ul>
+        <div class="prose dark:prose-invert prose-stone max-w-none">
+            {Content ? <Content /> : <p>About page content coming soon.</p>}
         </div>
     </div>
 </Layout>

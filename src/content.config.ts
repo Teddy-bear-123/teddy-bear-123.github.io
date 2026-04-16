@@ -38,4 +38,11 @@ const about = defineCollection({
     })
 })
 
-export const collections = { posts, projects, about }
+const home = defineCollection({
+    loader: glob({ pattern: '**/[^_]*.{md,mdx}', base: "./src/content/home" }),
+    schema: z.object({
+        title: z.string().optional(),
+    })
+})
+
+export const collections = { posts, projects, about, home }

@@ -5,7 +5,7 @@ import { formatDateMD } from '@utils/format'
 
 export const prerender = true
 
-const introEntry = await getEntry('about', 'intro')
+const introEntry = await getEntry('home', 'intro')
 const IntroContent = introEntry ? (await render(introEntry)).Content : null
 
 const projectEntries = await getCollection('projects')
@@ -14,19 +14,21 @@ const allItems = await Promise.all(
         .sort((a, b) => (a.data.order ?? 99) - (b.data.order ?? 99))
         .map(async (p) => {
             const rendered = await render(p)
-            return { ...p.data, id: p.id, Content: rendered.Content }
+            return { 
+                ...p.data, 
+                id: p.id, 
+                Content: rendered.Content,
+                isResearch: p.data.tags?.includes('research')
+            }
         })
 )
-
-const researchItems = allItems.filter(p => p.tags?.includes('research'))
-const regularProjects = allItems.filter(p => !p.tags?.includes('research'))
 
 const allPosts = await getCollection('posts', ({ data }) => !data.draft)
 const latestPosts = allPosts
     .sort((a, b) => b.data.pubDate.getTime() - a.data.pubDate.getTime())
     .slice(0, 1)
 
-const allLangs = [...new Set(regularProjects.flatMap(p => p.languages ?? []))]
+const allLangs = [...new Set(allItems.filter(p => !p.isResearch).flatMap(p => p.languages ?? []))]
 ---
 
 <Layout title="C. V. Rishi">
@@ -36,7 +38,7 @@ const allLangs = [...new Set(regularProjects.flatMap(p => p.languages ?? []))]
         <section class="hero-new">
             <div class="hero-content-new">
                 <h1 class="hero-title-new">Systems Programmer | CV Research</h1>
-                <div class="hero-desc-new prose dark:prose-invert">
+                <div class="hero-desc-custom">
                     {IntroContent ? <IntroContent /> : <p>Welcome to my personal site.</p>}
                 </div>
                 <p class="hero-cta-new">
@@ -67,7 +69,7 @@ const allLangs = [...new Set(regularProjects.flatMap(p => p.languages ?? []))]
         <section class="section" id="projects-section">
             <div class="section-header">
                 <div class="main-toggles">
-                    <button class="toggle-btn active" data-main="projects">Projects</button>
+                    <button class="toggle-btn" data-main="projects">Projects</button>
                     <button class="toggle-btn" data-main="research">Research</button>
                 </div>
                 
@@ -79,11 +81,28 @@ const allLangs = [...new Set(regularProjects.flatMap(p => p.languages ?? []))]
                 </div>
             </div>
 
-            <div class="content-container">
-                <!-- Projects Grid -->
-                <div class="project-grid-wide active" id="project-grid">
-                    {regularProjects.map((p) => (
-                        <article class="project-card-wide" data-langs={(p.languages ?? []).join(',')}>
+            <div class="unified-grid" id="unified-grid">
+                {allItems.map((p) => (
+                    p.isResearch ? (
+                        <article class="research-card-wide" data-type="research">
+                            <div class="pub-header">
+                                <span class="pub-venue">{p.venue}</span>
+                                <span class="tag-pill research-badge">Research</span>
+                            </div>
+                            <h3>
+                                {p.link ? (
+                                    <a href={p.link} target="_blank" class="research-link">{p.name} ↗</a>
+                                ) : (
+                                    p.name
+                                )}
+                            </h3>
+                            <p class="pub-authors">{p.authors}</p>
+                            <div class="pub-desc">
+                                <p.Content />
+                            </div>
+                        </article>
+                    ) : (
+                        <article class="project-card-wide" data-type="projects" data-langs={(p.languages ?? []).join(',')}>
                             <div class="card-header">
                                 <h3>{p.name}</h3>
                                 <span class="status-pill">open source</span>
@@ -106,33 +125,8 @@ const allLangs = [...new Set(regularProjects.flatMap(p => p.languages ?? []))]
                                 </div>
                             </div>
                         </article>
-                    ))}
-                </div>
-
-                <!-- Research List -->
-                <div class="research-list-container" id="research-list" style="display: none;">
-                    <div class="research-list">
-                        {researchItems.map(pub => (
-                            <div class="research-item-new">
-                                <div class="pub-header">
-                                    <span class="pub-venue">{pub.venue}</span>
-                                    <span class="tag-pill research-badge">Research</span>
-                                </div>
-                                <h3>
-                                    {pub.link ? (
-                                        <a href={pub.link} target="_blank" class="research-link">{pub.name} ↗</a>
-                                    ) : (
-                                        pub.name
-                                    )}
-                                </h3>
-                                <p class="pub-authors">{pub.authors}</p>
-                                <div class="pub-desc">
-                                    <pub.Content />
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                </div>
+                    )
+                ))}
             </div>
         </section>
     </div>
@@ -198,26 +192,39 @@ const allLangs = [...new Set(regularProjects.flatMap(p => p.languages ?? []))]
     function setupInteractions() {
         const toggleBtns = document.querySelectorAll('.toggle-btn')
         const chips = document.querySelectorAll('.chip')
-        const projectGrid = document.getElementById('project-grid')
-        const researchList = document.getElementById('research-list')
+        const items = document.querySelectorAll('[data-type]')
         const langFilters = document.getElementById('lang-filters')
-        const cards = document.querySelectorAll('.project-card-wide')
+        
+        let activeFilters = {
+            projects: false,
+            research: false
+        }
+
+        function updateDisplay() {
+            const showAll = !activeFilters.projects && !activeFilters.research
+            const showBoth = activeFilters.projects && activeFilters.research
+            
+            items.forEach(item => {
+                const type = (item as HTMLElement).dataset.type as 'projects' | 'research'
+                const isSelected = activeFilters[type]
+                
+                if (showAll || showBoth || isSelected) {
+                    (item as HTMLElement).style.display = ''
+                } else {
+                    (item as HTMLElement).style.display = 'none'
+                }
+            })
+
+            // Only show lang filters if projects are being shown (either alone, in "all", or "both")
+            langFilters!.style.visibility = (showAll || showBoth || activeFilters.projects) ? 'visible' : 'hidden'
+        }
 
         toggleBtns.forEach(btn => {
             btn.addEventListener('click', () => {
-                toggleBtns.forEach(b => b.classList.remove('active'))
-                btn.classList.add('active')
-                
-                const target = (btn as HTMLElement).dataset.main
-                if (target === 'projects') {
-                    projectGrid!.style.display = 'grid'
-                    researchList!.style.display = 'none'
-                    langFilters!.style.display = 'flex'
-                } else {
-                    projectGrid!.style.display = 'none'
-                    researchList!.style.display = 'block'
-                    langFilters!.style.display = 'none'
-                }
+                const type = (btn as HTMLElement).dataset.main as 'projects' | 'research'
+                activeFilters[type] = !activeFilters[type]
+                btn.classList.toggle('active')
+                updateDisplay()
             })
         })
 
@@ -226,16 +233,19 @@ const allLangs = [...new Set(regularProjects.flatMap(p => p.languages ?? []))]
                 chips.forEach(c => c.classList.remove('active'))
                 chip.classList.add('active')
                 const filter = (chip as HTMLElement).dataset.filter
-                cards.forEach(card => {
-                    const langs = ((card as HTMLElement).dataset.langs || '').split(',')
+                items.forEach(item => {
+                    if ((item as HTMLElement).dataset.type !== 'projects') return
+                    const langs = ((item as HTMLElement).dataset.langs || '').split(',')
                     if (filter === 'all' || langs.includes(filter)) {
-                        (card as HTMLElement).style.display = ''
+                        (item as HTMLElement).style.display = ''
                     } else {
-                        (card as HTMLElement).style.display = 'none'
+                        (item as HTMLElement).style.display = 'none'
                     }
                 })
             })
         })
+        
+        updateDisplay()
     }
 
     initBg()
@@ -275,12 +285,16 @@ const allLangs = [...new Set(regularProjects.flatMap(p => p.languages ?? []))]
         font-family: monospace;
     }
 
-    .hero-desc-new {
+    .hero-desc-custom {
         font-size: 1.05rem;
         line-height: 1.6;
         margin-bottom: 1.5rem;
         color: rgb(var(--color-text-body));
         text-align: left;
+    }
+
+    .hero-desc-custom :global(p) {
+        margin-bottom: 1.25rem;
     }
 
     .hero-cta-new {
@@ -375,7 +389,7 @@ const allLangs = [...new Set(regularProjects.flatMap(p => p.languages ?? []))]
 
     .main-toggles {
         display: flex;
-        gap: 1rem;
+        gap: 1.5rem;
     }
 
     .toggle-btn {
@@ -385,15 +399,17 @@ const allLangs = [...new Set(regularProjects.flatMap(p => p.languages ?? []))]
         font-size: 1.2rem;
         font-weight: 700;
         color: rgb(var(--color-text-body));
-        opacity: 0.4;
+        opacity: 0.3;
         cursor: pointer;
         transition: all 0.2s;
         padding: 0;
+        border-bottom: 2px solid transparent;
     }
 
     .toggle-btn.active {
         opacity: 1;
         color: rgb(var(--color-primary-main));
+        border-bottom-color: rgb(var(--color-primary-main));
     }
 
     .filter-chips {
@@ -417,16 +433,26 @@ const allLangs = [...new Set(regularProjects.flatMap(p => p.languages ?? []))]
         border-color: rgb(var(--color-primary-main));
     }
 
-    .project-grid-wide {
+    .unified-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+        grid-template-columns: repeat(2, 1fr);
         gap: 2rem;
     }
 
-    @media (max-width: 600px) {
-        .project-grid-wide {
+    @media (max-width: 800px) {
+        .unified-grid {
             grid-template-columns: 1fr;
         }
+        .research-card-wide {
+            grid-column: span 1 !important;
+        }
+    }
+
+    .research-card-wide {
+        grid-column: span 2;
+        border-left: 3px solid rgb(var(--color-primary-main));
+        padding: 1.5rem;
+        background: rgb(var(--color-primary-main) / 0.02);
     }
 
     .project-card-wide {
@@ -512,17 +538,6 @@ const allLangs = [...new Set(regularProjects.flatMap(p => p.languages ?? []))]
         color: rgb(var(--color-text-body));
     }
 
-    .research-list {
-        display: flex;
-        flex-direction: column;
-        gap: 2.5rem;
-    }
-
-    .research-item-new {
-        border-left: 3px solid rgb(var(--color-primary-main));
-        padding-left: 1.5rem;
-    }
-
     .pub-header {
         margin-bottom: 0.5rem;
         display: flex;
@@ -546,7 +561,7 @@ const allLangs = [...new Set(regularProjects.flatMap(p => p.languages ?? []))]
         font-size: 0.65rem;
     }
 
-    .research-item-new h3 {
+    .research-card-wide h3 {
         font-size: 1.3rem;
         margin: 0.5rem 0;
     }
