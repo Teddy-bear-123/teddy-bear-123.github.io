@@ -1,6 +1,6 @@
 export const PandaConfig = {
     title: 'C. V. Rishi',
-    description: 'Systems programmer and CV researcher. B.Tech CSE @ Mahindra University.',
+    description: 'B.Tech CSE @ Mahindra University. Research in computer vision & procedural video understanding. Systems programmer in C & Rust.',
     start: '2023',
     site: 'https://teddy-bear-123.github.io',
     defaultLocale: 'en',

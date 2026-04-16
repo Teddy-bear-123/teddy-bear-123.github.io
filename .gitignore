@@ -29,3 +29,6 @@ astro_tmp_pages_*
 
 # vercel
 .vercel
+
+scratch
+scratch/

@@ -22,6 +22,8 @@ const projects = defineCollection({
         github: z.string().optional(),
         site: z.string().optional(),
         order: z.number().optional().default(99),
+        tags: z.array(z.string()).optional().default(['general']),
+        features: z.array(z.string()).optional().default([]),
     })
 })
 

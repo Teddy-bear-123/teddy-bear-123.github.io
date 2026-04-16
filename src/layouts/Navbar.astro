@@ -6,29 +6,53 @@ const {url} = Astro
 const {path, t, locale} = useLocale(url)
 const {navbar} = PandaConfig
 
-const items = navbar
-function isRootPage() {
-    return !items.some((item) => url.toString().includes(item.url))
+function isActive(itemUrl: string) {
+    const currentPath = url.pathname
+    return currentPath === itemUrl || currentPath.startsWith(itemUrl)
 }
 ---
 
-<nav class={url.toString().includes('/posts/') ? 'hidden' : ''}>
-    <a
-            rel="prefetch"
-            href={path('/')}
-            class="panda-link mr-4 animated hover:no-underline"
-            class:list={isRootPage() ? 'active' : ''}>{t('nav.posts')}</a
-    >
+<nav class="navbar">
     {
-        items.map((item) => {
+        navbar.map((item) => {
             return (
                     <a
                             rel="prefetch"
                             href={item.url}
-                            class="panda-link mr-4 animated hover:no-underline"
-                            class:list={url.toString().includes(item.url) ? 'active' : ''}
+                            class="nav-link"
+                            class:list={isActive(item.url) ? 'active' : ''}
                     >{item.title}</a>
             )
         })
     }
 </nav>
+
+<style>
+    .navbar {
+        display: flex;
+        gap: 2rem;
+        padding: 1rem 0;
+        border-bottom: 1px solid rgb(var(--color-primary-main) / 0.1);
+        margin-bottom: 2rem;
+    }
+
+    .nav-link {
+        color: rgb(var(--color-text-body));
+        text-decoration: none;
+        font-size: 0.95rem;
+        padding-bottom: 0.5rem;
+        border-bottom: 2px solid transparent;
+        transition: all 0.3s;
+    }
+
+    .nav-link:hover {
+        color: rgb(var(--color-primary-main));
+        border-bottom-color: rgb(var(--color-primary-main) / 0.3);
+    }
+
+    .nav-link.active {
+        color: rgb(var(--color-primary-main));
+        border-bottom-color: rgb(var(--color-primary-main));
+        font-weight: 600;
+    }
+</style>
