@@ -6,4 +6,4 @@ tags: ["meta"]
 categories: ["misc"]
 ---
 
-This is the first post. The blog is minimal by design — for longer thoughts that don't fit in a commit message.
+Hello, world
